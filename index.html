@@ -194,17 +194,14 @@
                         <!-- Recording ring animation -->
                         <div id="recording-ring" class="absolute w-24 h-24 rounded-full bg-brand-500/20 animate-pulse-ring hidden"></div>
                         
-                        <!-- Mic Button -->
+                        <!-- Mic Button (Optimized to Toggle Tap for Mobile/GitHub Pages Stability) -->
                         <button id="record-btn" 
-                                onmousedown="startRecording()" 
-                                onmouseup="stopRecording()"
-                                ontouchstart="handleTouchStart(event)"
-                                ontouchend="handleTouchEnd(event)"
+                                onclick="toggleRecording()"
                                 class="w-20 h-20 bg-gradient-to-tr from-brand-600 to-brand-500 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30 relative z-10 transition-transform cursor-pointer">
                             <i data-lucide="mic" id="mic-icon" class="w-8 h-8"></i>
                         </button>
                     </div>
-                    <span id="record-label" class="text-xs font-bold text-slate-500 mt-3">按住麥克風不放開始說話，鬆開即翻譯</span>
+                    <span id="record-label" class="text-xs font-bold text-slate-500 mt-3">點擊麥克風開始說話，說完再點一次即翻譯</span>
                     <span id="record-timer" class="text-xs text-red-500 font-semibold mt-1 hidden">0:00</span>
                 </div>
 
@@ -321,7 +318,8 @@
         let audioChunks = [];
         let recordTimerInterval = null;
         let recordStartTime = null;
-        
+        let activeStream = null; // Caching microphone stream to bypass mobile initialization lag
+
         // Dynamic Translation History & Favorites State
         let historyFilter = 'all'; // 'all' or 'favorites'
         let historyRecords = [];
@@ -642,6 +640,24 @@
             modal.classList.toggle('hidden');
         }
 
+        // Active Key Check for Self-Hosted Deployments like GitHub Pages
+        function checkApiKey() {
+            if (!settings.apiKey || settings.apiKey.trim() === '') {
+                showNotice('⚠️ 請先點選右上角「設定」，填入您的 Gemini API Key 唷！');
+                setTimeout(() => {
+                    toggleSetupModal();
+                    // Highlight the key input
+                    const input = document.getElementById('api-key-input');
+                    if (input) {
+                        input.focus();
+                        input.classList.add('border-rose-400');
+                    }
+                }, 800);
+                return false;
+            }
+            return true;
+        }
+
         function showNotice(text) {
             const toast = document.createElement('div');
             toast.className = "fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-4 py-2.5 rounded-full shadow-lg z-50 transition-opacity duration-300 font-bold";
@@ -761,7 +777,7 @@
                 
                 // Update record button color scheme
                 recordBtn.className = "w-20 h-20 bg-gradient-to-tr from-care-600 to-care-500 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-care-500/30 relative z-10 transition-transform cursor-pointer";
-                document.getElementById('record-label').innerText = "現在請看護按住話筒，用印尼語說話";
+                document.getElementById('record-label').innerText = "點擊一下，請看護開始說印尼話";
                 
             } else {
                 // Change to Taiwanese -> Indonesian
@@ -776,27 +792,62 @@
                 flowIndicator.innerHTML = `<i class="w-3.5 h-3.5 text-brand-500" data-lucide="arrow-down"></i><span>當前方向：阿公說 ➔ 看護聽</span>`;
                 
                 recordBtn.className = "w-20 h-20 bg-gradient-to-tr from-brand-600 to-brand-500 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30 relative z-10 transition-transform cursor-pointer";
-                document.getElementById('record-label').innerText = "現在請阿公按住話筒，用台語/國語說話";
+                document.getElementById('record-label').innerText = "點擊一下，請阿公開始說台語/國語";
+            }
+            
+            // Adjust label based on active recording state if switched mid-way
+            if (isRecording) {
+                document.getElementById('record-label').innerText = "正在錄音中... 說完請再次點擊按鈕";
             }
             
             lucide.createIcons();
             showNotice(`已變更翻譯方向：${currentMode === 'tw' ? '台語 ➔ 印尼文' : '印尼文 ➔ 台語'}`);
         }
 
-        function handleTouchStart(e) {
-            e.preventDefault();
-            startRecording();
+        // Initialize or fetch the pre-warmed mic stream to speed up mobile capture
+        async function getMicrophoneStream() {
+            if (activeStream && activeStream.active) {
+                return activeStream;
+            }
+            try {
+                activeStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                });
+                return activeStream;
+            } catch (err) {
+                console.error('取得麥克風失敗:', err);
+                return null;
+            }
         }
 
-        function handleTouchEnd(e) {
-            e.preventDefault();
-            stopRecording();
+        // Unified toggle trigger perfectly tailored for mobile touch/click stability
+        async function toggleRecording() {
+            if (!checkApiKey()) return;
+
+            if (isRecording) {
+                stopRecording();
+            } else {
+                await startRecording();
+            }
         }
 
         async function startRecording() {
             if (isRecording) return;
+            
+            document.getElementById('trans-status').innerText = "🎙️ 正在啟動麥克風...";
+            
+            const stream = await getMicrophoneStream();
+            if (!stream) {
+                showNotice('請確定已授權並啟用麥克風硬體！');
+                document.getElementById('trans-status').innerText = "⚠️ 無法取得錄音權限。";
+                return;
+            }
+
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 isRecording = true;
                 audioChunks = [];
                 
@@ -810,35 +861,47 @@
                 }
                 
                 document.getElementById('mic-icon').classList.add('scale-110');
-                document.getElementById('record-label').innerText = "正在錄音聆聽中... 請大聲說，鬆開即送出";
-                document.getElementById('trans-status').innerText = "系統偵測音訊中...";
+                document.getElementById('record-label').innerText = "正在錄音中... 說完請「再點擊一次」即可翻譯";
+                document.getElementById('trans-status').innerText = "系統聆聽中，請清晰說話...";
                 
-                // Determine compatible codecs
+                // Detect device formats carefully
                 let options = {};
-                if (MediaRecorder.isTypeSupported('audio/webm')) {
+                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                    options = { mimeType: 'audio/webm;codecs=opus' };
+                } else if (MediaRecorder.isTypeSupported('audio/webm')) {
                     options = { mimeType: 'audio/webm' };
+                } else if (MediaRecorder.isTypeSupported('audio/mp4;codecs=opus')) {
+                    options = { mimeType: 'audio/mp4;codecs=opus' };
                 } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    // Mobile Safari standard fallback
                     options = { mimeType: 'audio/mp4' };
+                } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+                    options = { mimeType: 'audio/aac' };
                 }
-                
+
                 mediaRecorder = new MediaRecorder(stream, options);
                 mediaRecorder.ondataavailable = event => {
-                    if (event.data.size > 0) {
+                    if (event.data && event.data.size > 0) {
                         audioChunks.push(event.data);
                     }
                 };
 
                 mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-                    stream.getTracks().forEach(track => track.stop()); // Clean recording hardware hooks
+                    const finalMime = mediaRecorder.mimeType || stream.getAudioTracks()[0].getSettings().mimeType || 'audio/mp4';
+                    const audioBlob = new Blob(audioChunks, { type: finalMime });
+                    
+                    // Keep stream active to skip lag on next record, do not force stop tracks unless needed
                     processAudioTranslation(audioBlob);
                 };
 
-                mediaRecorder.start();
+                mediaRecorder.start(250); // Slice periodically to avoid Safari buffer loss
 
                 // Trigger timer counting
                 recordStartTime = Date.now();
                 document.getElementById('record-timer').classList.remove('hidden');
+                document.getElementById('record-timer').innerText = "0:00";
+                
+                if (recordTimerInterval) clearInterval(recordTimerInterval);
                 recordTimerInterval = setInterval(() => {
                     const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
                     const minutes = Math.floor(elapsed / 60);
@@ -847,9 +910,9 @@
                 }, 1000);
 
             } catch (err) {
-                console.error('錄音失敗:', err);
-                showNotice('請確定已允許麥克風使用權限，或直接鍵入文字翻譯！');
+                console.error('錄製程序啟動失敗:', err);
                 isRecording = false;
+                document.getElementById('trans-status').innerText = "⚠️ 錄音啟動錯誤。";
             }
         }
 
@@ -861,8 +924,8 @@
             document.getElementById('recording-ring').classList.add('hidden');
             document.getElementById('mic-icon').classList.remove('scale-110');
             document.getElementById('record-label').innerText = currentMode === 'tw' 
-                ? "按住麥克風開始說台語，鬆開即可翻譯" 
-                : "按住麥克風開始說印尼話，鬆開即可翻譯";
+                ? "點擊一下，請阿公開始說台語/國語" 
+                : "點擊一下，請看護開始說印尼話";
             document.getElementById('record-timer').classList.add('hidden');
             clearInterval(recordTimerInterval);
 
@@ -881,11 +944,32 @@
         }
 
         async function processAudioTranslation(audioBlob) {
-            document.getElementById('trans-status').innerText = "⏳ 正在理解並高速翻譯中，請稍候...";
+            if (audioBlob.size < 1000) {
+                document.getElementById('trans-status').innerText = "⚠️ 錄音時間過短或無聲音，請再試一次。";
+                return;
+            }
+
+            document.getElementById('trans-status').innerText = "⏳ 正在理解語音並高速翻譯中...";
             
             try {
                 const base64Data = await blobToBase64(audioBlob);
-                const mimeType = audioBlob.type || 'audio/webm';
+                
+                // Strict normalization of MIME types for Gemini API compatibility (avoid nested params like codecs=opus)
+                let rawMime = audioBlob.type || 'audio/webm';
+                let normalizedMime = 'audio/webm';
+                
+                if (rawMime.includes('audio/webm')) {
+                    normalizedMime = 'audio/webm';
+                } else if (rawMime.includes('audio/mp4') || rawMime.includes('video/mp4') || rawMime.includes('audio/x-m4a')) {
+                    normalizedMime = 'audio/mp4';
+                } else if (rawMime.includes('audio/ogg')) {
+                    normalizedMime = 'audio/ogg';
+                } else if (rawMime.includes('audio/wav') || rawMime.includes('audio/x-wav')) {
+                    normalizedMime = 'audio/wav';
+                } else {
+                    // Fallback default
+                    normalizedMime = 'audio/mp4';
+                }
                 
                 const prompt = currentMode === 'tw' 
                     ? "使用者口說台灣台語或中文。請聽寫下原文，並精確翻譯成印尼文。"
@@ -909,7 +993,7 @@ Output ONLY a JSON object with this exact schema (no backticks or formatting out
                         role: "user",
                         parts: [
                             { text: prompt },
-                            { inlineData: { mimeType: mimeType, data: base64Data } }
+                            { inlineData: { mimeType: normalizedMime, data: base64Data } }
                         ]
                     }],
                     systemInstruction: { parts: [{ text: systemPrompt }] },
@@ -940,15 +1024,16 @@ Output ONLY a JSON object with this exact schema (no backticks or formatting out
                     currentMode
                 );
 
-                document.getElementById('trans-status').innerText = "✅ 翻譯成功且已記錄！";
+                document.getElementById('trans-status').innerText = "✅ 語音翻譯成功！";
 
             } catch (err) {
                 console.error(err);
-                document.getElementById('trans-status').innerText = "⚠️ 語音辨識或API翻譯錯誤，請直接手動輸入或重試。";
+                document.getElementById('trans-status').innerText = "⚠️ 語音辨識或API翻譯錯誤。請確認右上角設定中已正確填寫 API 金鑰，或重試一次。";
             }
         }
 
         async function translateCurrentText() {
+            if (!checkApiKey()) return;
             const textTw = document.getElementById('text-tw').value.trim();
             const textId = document.getElementById('text-id').value.trim();
             
