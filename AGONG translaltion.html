@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台印翻譯專用 💖 Khusus Terjemahan Taiwan-Indonesia</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            500: '#f97316', // Warm Orange for Grandpa
+                            600: '#ea580c',
+                            700: '#c2410c',
+                        },
+                        care: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            500: '#14b8a6', // Soft Teal for Caretaker
+                            600: '#0d9488',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar for phrase directory */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Recording pulsing animation */
+        @keyframes pulse-ring {
+            0 { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.15); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .animate-pulse-ring {
+            animation: pulse-ring 1.8s infinite ease-in-out;
+        }
+        /* Custom transitions */
+        .swap-transition {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-brand-50 via-white to-care-50 min-h-screen font-sans pb-12 text-slate-800">
+
+    <!-- App Container -->
+    <div class="max-w-md mx-auto px-4 pt-4 pb-28">
+        
+        <!-- Top App Bar -->
+        <header class="flex items-center justify-between mb-4 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-brand-100/50">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-800 tracking-tight flex items-center gap-1.5 flex-wrap">
+                        台印翻譯專用
+                        <span class="text-[10px] bg-care-500 text-white px-2 py-0.5 rounded-full font-bold">Terjemahan</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-500">Khusus Terjemahan Taiwan-Indonesia</p>
+                </div>
+            </div>
+            <button onclick="toggleSetupModal()" class="w-9 h-9 hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-600 transition-colors">
+                <i data-lucide="settings" class="w-5 h-5"></i>
+            </button>
+        </header>
+
+        <!-- Tabs Navigation -->
+        <div class="flex bg-slate-100 p-1 rounded-xl mb-4">
+            <button id="tab-translate" onclick="switchTab('translate')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all bg-white text-brand-600 shadow-sm">
+                <i data-lucide="repeat" class="w-4 h-4"></i>
+                雙向翻譯面板
+            </button>
+            <button id="tab-phrases" onclick="switchTab('phrases')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-800">
+                <i data-lucide="history" class="w-4 h-4"></i>
+                常用與歷史紀錄
+            </button>
+        </div>
+
+        <!-- ==================== TAB 1: DUAL-WINDOW TRANSLATOR ==================== -->
+        <section id="section-translate" class="space-y-4">
+            
+            <!-- Translation Panel Wrapper (Fixed height, no infinite scroll chat) -->
+            <div class="relative flex flex-col gap-3">
+                
+                <!-- UPPER WINDOW: Taiwanese / Mandarin (Grandpa / Family) -->
+                <div id="panel-tw" class="swap-transition bg-white rounded-2xl p-4 shadow-sm border-2 border-brand-500/80 flex flex-col justify-between h-[180px] relative">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="label-tw" class="text-xs font-bold text-brand-600 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-brand-500 inline-block animate-pulse"></span>
+                            阿公/家人（台語/國語）說話區
+                        </span>
+                        <div class="flex gap-1.5">
+                            <button onclick="clearPanel('tw')" class="text-slate-400 hover:text-slate-600 p-1 rounded" title="清除內容">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="playSpeechFromPanel('tw')" class="text-brand-500 hover:text-brand-600 p-1 rounded" title="播放語音">
+                                <i data-lucide="volume-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Text Area -->
+                    <textarea id="text-tw" class="w-full flex-1 bg-transparent border-none text-slate-800 font-bold text-lg focus:outline-none resize-none placeholder:text-slate-400 placeholder:font-normal" placeholder="點擊下方話筒說話，或在此直接打字..."></textarea>
+                    
+                    <!-- Phonetic Guide / Reading Assistant -->
+                    <div id="guide-tw" class="text-xs text-brand-700 font-medium bg-brand-50/70 p-1.5 rounded-lg border border-brand-100/50 mt-1 truncate">
+                        台語讀音：尚無輸入
+                    </div>
+                </div>
+
+                <!-- MIDDLE SWAP BAR & STATUS -->
+                <div class="flex items-center justify-between px-2 -my-1">
+                    <div class="text-[11px] text-slate-500 font-medium flex items-center gap-1" id="flow-indicator">
+                        <i data-lucide="arrow-down" class="w-3.5 h-3.5 text-brand-500"></i>
+                        <span>當前方向：阿公說 ➔ 看護聽</span>
+                    </div>
+                    <!-- Swap Direction Button -->
+                    <button onclick="swapLanguages()" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 text-white rounded-full flex items-center justify-center shadow-md active:scale-90 transition-transform z-10">
+                        <i data-lucide="arrow-up-down" class="w-4.5 h-4.5"></i>
+                    </button>
+                </div>
+
+                <!-- LOWER WINDOW: Indonesian (Caretaker) -->
+                <div id="panel-id" class="swap-transition bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between h-[180px] relative">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-2">
+                        <span id="label-id" class="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span>
+                            看護（印尼文）區
+                        </span>
+                        <div class="flex gap-1.5">
+                            <button onclick="clearPanel('id')" class="text-slate-400 hover:text-slate-600 p-1 rounded" title="清除內容">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="playSpeechFromPanel('id')" class="text-care-500 hover:text-care-600 p-1 rounded" title="播放語音">
+                                <i data-lucide="volume-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Text Area -->
+                    <textarea id="text-id" class="w-full flex-1 bg-transparent border-none text-slate-800 font-bold text-lg focus:outline-none resize-none placeholder:text-slate-400 placeholder:font-normal" placeholder="看護說印尼語時，翻譯結果將顯示在此..."></textarea>
+                    
+                    <!-- Phonetic Guide / Reading Assistant -->
+                    <div id="guide-id" class="text-xs text-care-700 font-medium bg-care-50/70 p-1.5 rounded-lg border border-care-100/50 mt-1 truncate">
+                        中文諧音：Belum ada input
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Recording & Action Dashboard -->
+            <div class="bg-white rounded-2xl p-4 shadow-md border border-slate-100 space-y-4">
+                
+                <div class="flex items-center justify-between">
+                    <span id="trans-status" class="text-xs font-semibold text-slate-500">就緒。請使用下方語音按鈕或直接修改文字。</span>
+                    <button id="btn-manual-translate" onclick="translateCurrentText()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1.5 rounded-lg font-bold items-center gap-1 transition-colors">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 手動翻譯輸入
+                    </button>
+                </div>
+
+                <!-- Recording Area (Big center action button) -->
+                <div class="flex flex-col items-center justify-center py-2 border-t border-slate-50 pt-4">
+                    <div class="relative flex items-center justify-center">
+                        <!-- Recording ring animation -->
+                        <div id="recording-ring" class="absolute w-24 h-24 rounded-full bg-brand-500/20 animate-pulse-ring hidden"></div>
+                        
+                        <!-- Mic Button -->
+                        <button id="record-btn" 
+                                onmousedown="startRecording()" 
+                                onmouseup="stopRecording()"
+                                ontouchstart="handleTouchStart(event)"
+                                ontouchend="handleTouchEnd(event)"
+                                class="w-20 h-20 bg-gradient-to-tr from-brand-600 to-brand-500 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30 relative z-10 transition-transform cursor-pointer">
+                            <i data-lucide="mic" id="mic-icon" class="w-8 h-8"></i>
+                        </button>
+                    </div>
+                    <span id="record-label" class="text-xs font-bold text-slate-500 mt-3">按住麥克風不放開始說話，鬆開即翻譯</span>
+                    <span id="record-timer" class="text-xs text-red-500 font-semibold mt-1 hidden">0:00</span>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ==================== TAB 2: HISTORY & FAVORITES DIRECTORY ==================== -->
+        <section id="section-phrases" class="hidden space-y-4">
+            
+            <!-- Category Selector Buttons / Filters -->
+            <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-100 shadow-sm">
+                <div class="flex gap-1">
+                    <button id="filter-all" onclick="setHistoryFilter('all')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-500 text-white shadow-sm transition-colors">
+                        ⏳ 歷史紀錄
+                    </button>
+                    <button id="filter-favorites" onclick="setHistoryFilter('favorites')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors">
+                        ⭐ 常用收藏
+                    </button>
+                </div>
+                <button onclick="clearAllHistory()" class="text-xs font-semibold text-rose-500 hover:text-rose-600 flex items-center gap-1 px-2 py-1 hover:bg-rose-50 rounded transition-colors">
+                    <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                    清空紀錄
+                </button>
+            </div>
+
+            <!-- Phrase/History Cards Stack -->
+            <div class="space-y-3" id="history-stack">
+                <!-- Filled dynamically by JavaScript -->
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Bottom Quick Action Menu (Sticky) -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-3 py-3.5 flex justify-around items-center z-40 rounded-t-3xl">
+        <button onclick="quickAction('water')" class="flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform">
+            <span class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-lg shadow-sm">💧</span>
+            <span class="text-[10px] font-bold text-slate-600">喝水/Minum</span>
+        </button>
+        <button onclick="quickAction('eat')" class="flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform">
+            <span class="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center text-lg shadow-sm">🍚</span>
+            <span class="text-[10px] font-bold text-slate-600">吃飯/Makan</span>
+        </button>
+        <button onclick="quickAction('toilet')" class="flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform">
+            <span class="w-10 h-10 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center text-lg shadow-sm">🚽</span>
+            <span class="text-[10px] font-bold text-slate-600">廁所/WC</span>
+        </button>
+        <button onclick="quickAction('pain')" class="flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform">
+            <span class="w-10 h-10 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-lg shadow-sm">🤕</span>
+            <span class="text-[10px] font-bold text-slate-600">哪裡痛/Sakit</span>
+        </button>
+        <button onclick="quickAction('emergency')" class="flex flex-col items-center gap-1 hover:scale-105 active:scale-95 transition-transform">
+            <span class="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-lg shadow-md animate-pulse">🚨</span>
+            <span class="text-[10px] font-bold text-red-600">緊急/Bahaya</span>
+        </button>
+    </nav>
+
+    <!-- API Settings Modal -->
+    <div id="setup-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-5 h-5 text-brand-500"></i>
+                    設定與配置
+                </h3>
+                <button onclick="toggleSetupModal()" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Gemini API 金鑰</label>
+                    <input type="password" id="api-key-input" placeholder="可保留空白 (Canvas 將自動注入)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500">
+                    <p class="text-[10px] text-slate-400 mt-1 font-medium">在網頁獨立部署時，請填入您自己的 Gemini API Key 唷！</p>
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">阿公常用腔調</label>
+                    <select id="dialect-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none">
+                        <option value="minnan-taiwan">台灣台語 (偏漳腔/通用)</option>
+                        <option value="quanzhou">偏泉腔</option>
+                        <option value="mandarin-only">國語與台語混合</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 border-t border-slate-100">
+                    <h4 class="text-xs font-bold text-slate-600 mb-1">關於台印翻譯專用</h4>
+                    <p class="text-[11px] text-slate-500 leading-relaxed">
+                        本應用程式專為家庭照護情境優化。採用上下對稱式的直覺即時面板，無複雜的歷史紀錄堆疊，長輩與看護能直接針對眼前的文字發音和修正。
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-3">
+                <button onclick="toggleSetupModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors">
+                    取消
+                </button>
+                <button onclick="saveSettings()" class="flex-1 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-semibold transition-colors">
+                    儲存設定
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let currentTab = 'translate';
+        let currentMode = 'tw'; // 'tw' = Taiwanese -> Indonesian, 'id' = Indonesian -> Taiwanese
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordTimerInterval = null;
+        let recordStartTime = null;
+        
+        // Dynamic Translation History & Favorites State
+        let historyFilter = 'all'; // 'all' or 'favorites'
+        let historyRecords = [];
+
+        // Settings
+        let settings = {
+            apiKey: '',
+            dialect: 'minnan-taiwan'
+        };
+
+        // Standard Onboarding Default Phrases (to seed history on first-time launch)
+        const seedHistory = [
+            {
+                id: 'seed-1',
+                sourceText: '阿公，欲飲水無？',
+                targetText: 'Akong, mau minum air?',
+                taiwaneseGuide: 'A-kong, beh lim-tsúi--bô?',
+                mandarinEquivalent: '阿公，要喝水嗎？',
+                direction: 'tw',
+                isFavorite: true,
+                timestamp: Date.now() - 50000
+            },
+            {
+                id: 'seed-2',
+                sourceText: '該食藥囉。',
+                targetText: 'Waktunya minum obat.',
+                taiwaneseGuide: 'Kai tsia̍h-io̍h--lo̍h.',
+                mandarinEquivalent: '該吃藥了。',
+                direction: 'tw',
+                isFavorite: true,
+                timestamp: Date.now() - 40000
+            },
+            {
+                id: 'seed-3',
+                sourceText: '阿公，欲食飯無？',
+                targetText: 'Akong, mau makan?',
+                taiwaneseGuide: 'A-kong, beh tsia̍h-pn̄g--bô?',
+                mandarinEquivalent: '阿公，要吃飯嗎？',
+                direction: 'tw',
+                isFavorite: true,
+                timestamp: Date.now() - 35000
+            },
+            {
+                id: 'seed-4',
+                sourceText: '阿公，佗位咧痛？',
+                targetText: 'Akong, bagian mana yang sakit?',
+                taiwaneseGuide: 'A-kong, tó-uī leh thiànn?',
+                mandarinEquivalent: '阿公，哪裡在痛？',
+                direction: 'tw',
+                isFavorite: false,
+                timestamp: Date.now() - 30000
+            },
+            {
+                id: 'seed-5',
+                sourceText: 'Saya merasa sangat tidak enak badan.',
+                targetText: '我真無舒服。',
+                taiwaneseGuide: '哇 斤 謀 素服。',
+                mandarinEquivalent: '我非常不舒服。',
+                direction: 'id',
+                isFavorite: false,
+                timestamp: Date.now() - 20000
+            }
+        ];
+
+        window.onload = function() {
+            lucide.createIcons();
+            loadSettings();
+            loadHistory();
+            setupTextareaListeners();
+        };
+
+        function loadSettings() {
+            const saved = localStorage.getItem('kasih_plus_settings');
+            if (saved) {
+                settings = JSON.parse(saved);
+                document.getElementById('api-key-input').value = settings.apiKey || '';
+                document.getElementById('dialect-input').value = settings.dialect || 'minnan-taiwan';
+            }
+        }
+
+        function saveSettings() {
+            settings.apiKey = document.getElementById('api-key-input').value.trim();
+            settings.dialect = document.getElementById('dialect-input').value;
+            localStorage.setItem('kasih_plus_settings', JSON.stringify(settings));
+            toggleSetupModal();
+            showNotice('設定已儲存！');
+        }
+
+        function loadHistory() {
+            const savedHistory = localStorage.getItem('kasih_plus_history');
+            if (savedHistory) {
+                historyRecords = JSON.parse(savedHistory);
+            } else {
+                // Seed some useful caretaking shortcuts initially
+                historyRecords = [...seedHistory];
+                localStorage.setItem('kasih_plus_history', JSON.stringify(historyRecords));
+            }
+            renderHistory();
+        }
+
+        // Save a record to the history array and sync with LocalStorage
+        function saveTranslationToHistory(source, target, guide, equivalent, direction) {
+            // Check for duplicate translation content to keep history clean
+            const existingIndex = historyRecords.findIndex(r => 
+                r.sourceText.trim().toLowerCase() === source.trim().toLowerCase()
+            );
+
+            if (existingIndex !== -1) {
+                // Update timestamp and existing translation content
+                historyRecords[existingIndex].timestamp = Date.now();
+                historyRecords[existingIndex].targetText = target;
+                historyRecords[existingIndex].taiwaneseGuide = guide;
+                historyRecords[existingIndex].mandarinEquivalent = equivalent;
+                // Move to top of history
+                const item = historyRecords.splice(existingIndex, 1)[0];
+                historyRecords.unshift(item);
+            } else {
+                // Insert new record at the top
+                const newRecord = {
+                    id: 'rec-' + Date.now() + Math.random().toString(36).substr(2, 4),
+                    sourceText: source,
+                    targetText: target,
+                    taiwaneseGuide: guide || '',
+                    mandarinEquivalent: equivalent || '',
+                    direction: direction, // 'tw' (Taiwanese -> Indonesian) or 'id' (Indonesian -> Taiwanese)
+                    isFavorite: false,
+                    timestamp: Date.now()
+                };
+                historyRecords.unshift(newRecord);
+            }
+
+            // Cap history to 50 items to optimize storage
+            if (historyRecords.length > 50) {
+                historyRecords = historyRecords.slice(0, 50);
+            }
+
+            localStorage.setItem('kasih_plus_history', JSON.stringify(historyRecords));
+            renderHistory();
+        }
+
+        function toggleFavorite(id) {
+            const record = historyRecords.find(r => r.id === id);
+            if (record) {
+                record.isFavorite = !record.isFavorite;
+                localStorage.setItem('kasih_plus_history', JSON.stringify(historyRecords));
+                renderHistory();
+                showNotice(record.isFavorite ? '⭐️ 已加入常用收藏！' : '已從常用中移除。');
+            }
+        }
+
+        function deleteHistoryItem(id) {
+            historyRecords = historyRecords.filter(r => r.id !== id);
+            localStorage.setItem('kasih_plus_history', JSON.stringify(historyRecords));
+            renderHistory();
+            showNotice('已刪除該筆翻譯紀錄。');
+        }
+
+        function clearAllHistory() {
+            if (confirm('確定要清空所有的翻譯歷史紀錄嗎？（這不會影響未來新增的紀錄）')) {
+                historyRecords = [];
+                localStorage.setItem('kasih_plus_history', JSON.stringify(historyRecords));
+                renderHistory();
+                showNotice('已清空所有紀錄。');
+            }
+        }
+
+        function setHistoryFilter(filter) {
+            historyFilter = filter;
+            const btnAll = document.getElementById('filter-all');
+            const btnFav = document.getElementById('filter-favorites');
+
+            if (filter === 'all') {
+                btnAll.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-500 text-white shadow-sm transition-colors";
+                btnFav.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors";
+            } else {
+                btnFav.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-500 text-white shadow-sm transition-colors";
+                btnAll.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors";
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const stack = document.getElementById('history-stack');
+            stack.innerHTML = '';
+
+            const filtered = historyFilter === 'favorites' 
+                ? historyRecords.filter(r => r.isFavorite) 
+                : historyRecords;
+
+            if (filtered.length === 0) {
+                stack.innerHTML = `
+                    <div class="text-center py-12 px-4 bg-white rounded-2xl border border-dashed border-slate-200">
+                        <i data-lucide="folder-open" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                        <p class="text-xs text-slate-400 font-semibold">
+                            ${historyFilter === 'favorites' ? '目前沒有收藏的常用用語。點選紀錄上的 ⭐ 即可收藏！' : '尚無翻譯紀錄，去前方面板翻譯看看吧！'}
+                        </p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            filtered.forEach(r => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col gap-3 relative overflow-hidden hover:border-brand-200 transition-colors";
+                
+                // Determine layout text headers depending on original flow direction
+                const isTwFlow = r.direction === 'tw';
+                const originalTitle = isTwFlow ? '阿公/家人說台語' : '看護印尼文';
+                const translationTitle = isTwFlow ? '看護印尼文' : '台語翻譯結果';
+                
+                const originalLangCode = isTwFlow ? 'zh-TW' : 'id-ID';
+                const targetLangCode = isTwFlow ? 'id-ID' : 'zh-TW';
+
+                card.innerHTML = `
+                    <!-- Upper segment: Original spoken text -->
+                    <div class="flex items-start justify-between gap-2 border-b border-dashed border-slate-100 pb-2.5">
+                        <div class="space-y-1 flex-1">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="${isTwFlow ? 'bg-brand-100 text-brand-700' : 'bg-care-100 text-care-700'} text-[10px] px-1.5 py-0.5 rounded font-bold">${originalTitle}</span>
+                                <h4 class="font-bold text-base text-slate-800">${r.sourceText}</h4>
+                            </div>
+                            ${isTwFlow && r.mandarinEquivalent ? `<p class="text-[11px] text-slate-400">國語：${r.mandarinEquivalent}</p>` : ''}
+                        </div>
+                        <button onclick="playSpeech('${r.sourceText}', '${originalLangCode}')" class="w-8 h-8 rounded-full ${isTwFlow ? 'bg-brand-50 hover:bg-brand-100 text-brand-600' : 'bg-care-50 hover:bg-care-100 text-care-600'} flex items-center justify-center shrink-0 transition-all">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Lower segment: Translation response text -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="space-y-1 flex-1">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="${isTwFlow ? 'bg-care-100 text-care-700' : 'bg-brand-100 text-brand-700'} text-[10px] px-1.5 py-0.5 rounded font-bold">${translationTitle}</span>
+                                <h4 class="font-bold text-base text-slate-800">${r.targetText}</h4>
+                            </div>
+                            ${isTwFlow && r.taiwaneseGuide ? `<p class="text-[11px] text-slate-500 font-medium">中文諧音：${r.taiwaneseGuide}</p>` : ''}
+                            ${!isTwFlow && r.taiwaneseGuide ? `<p class="text-[11px] text-brand-600 font-semibold">拼音：${r.taiwaneseGuide}</p>` : ''}
+                            ${!isTwFlow && r.mandarinEquivalent ? `<p class="text-[11px] text-slate-400">中文解意：${r.mandarinEquivalent}</p>` : ''}
+                        </div>
+                        <button onclick="playSpeech('${r.targetText}', '${targetLangCode}')" class="w-8 h-8 rounded-full ${isTwFlow ? 'bg-care-50 hover:bg-care-100 text-care-600' : 'bg-brand-50 hover:bg-brand-100 text-brand-600'} flex items-center justify-center shrink-0 transition-all">
+                            <i data-lucide="volume-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Actions & Buttons -->
+                    <div class="flex items-center justify-between mt-1 pt-2 border-t border-slate-50">
+                        <!-- Left action buttons: Delete and Star -->
+                        <div class="flex gap-2">
+                            <!-- Star/Favorite Toggle Button -->
+                            <button onclick="toggleFavorite('${r.id}')" class="text-xs flex items-center gap-1 ${r.isFavorite ? 'text-amber-500' : 'text-slate-400 hover:text-amber-500'} transition-colors font-semibold">
+                                <i data-lucide="star" class="w-3.5 h-3.5 fill-current"></i>
+                                ${r.isFavorite ? '常用最愛' : '收藏'}
+                            </button>
+                            <!-- Delete Button -->
+                            <button onclick="deleteHistoryItem('${r.id}')" class="text-xs text-slate-400 hover:text-rose-500 flex items-center gap-0.5 transition-colors font-medium">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                刪除
+                            </button>
+                        </div>
+                        
+                        <!-- Right action button: Load to Panel -->
+                        <button onclick="applyHistoryToPanel('${r.id}')" class="text-xs text-brand-500 hover:text-brand-600 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition-all shadow-sm">
+                            <i data-lucide="send" class="w-3.5 h-3.5"></i> 載入面板
+                        </button>
+                    </div>
+                `;
+                stack.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // Load a historical translation back onto the active dual interactive panels
+        function applyHistoryToPanel(id) {
+            const record = historyRecords.find(r => r.id === id);
+            if (!record) return;
+
+            // Shift tab back to active translator
+            switchTab('translate');
+
+            // Set current UI Mode matching the original translation direction flow
+            if (currentMode !== record.direction) {
+                swapLanguages();
+            }
+
+            const isTwMode = record.direction === 'tw';
+
+            if (isTwMode) {
+                document.getElementById('text-tw').value = record.sourceText;
+                document.getElementById('text-id').value = record.targetText;
+                document.getElementById('guide-id').innerText = `🔊 中文音近：${record.taiwaneseGuide || '無'}`;
+                
+                if (record.mandarinEquivalent && record.sourceText !== record.mandarinEquivalent) {
+                    document.getElementById('guide-tw').innerText = `國語意思：${record.mandarinEquivalent}`;
+                } else {
+                    document.getElementById('guide-tw').innerText = `台語輸入確認：${record.sourceText}`;
+                }
+                
+                showNotice('已將常用紀錄載入面板！');
+                setTimeout(() => playSpeech(record.targetText, 'id-ID'), 300);
+            } else {
+                document.getElementById('text-id').value = record.sourceText;
+                document.getElementById('text-tw').value = record.targetText;
+                document.getElementById('guide-tw').innerText = `🗣️ 拼音提示：${record.taiwaneseGuide || '無'}`;
+                
+                if (record.mandarinEquivalent) {
+                    document.getElementById('guide-id').innerText = `中文解意：${record.mandarinEquivalent}`;
+                } else {
+                    document.getElementById('guide-id').innerText = `Indonesian input: ${record.sourceText}`;
+                }
+                
+                showNotice('已將常用紀錄載入面板！');
+                setTimeout(() => playSpeech(record.targetText, 'zh-TW'), 300);
+            }
+        }
+
+        function toggleSetupModal() {
+            const modal = document.getElementById('setup-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function showNotice(text) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-4 py-2.5 rounded-full shadow-lg z-50 transition-opacity duration-300 font-bold";
+            toast.innerText = text;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // Switch Tabs between Translator Panel & Phrase History list
+        function switchTab(tab) {
+            currentTab = tab;
+            const btnTranslate = document.getElementById('tab-translate');
+            const btnPhrases = document.getElementById('tab-phrases');
+            const secTranslate = document.getElementById('section-translate');
+            const secPhrases = document.getElementById('section-phrases');
+
+            if (tab === 'translate') {
+                btnTranslate.className = "flex-1 py-2.5 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all bg-white text-brand-600 shadow-sm";
+                btnPhrases.className = "flex-1 py-2.5 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-800";
+                secTranslate.classList.remove('hidden');
+                secPhrases.classList.add('hidden');
+            } else {
+                btnPhrases.className = "flex-1 py-2.5 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all bg-white text-brand-600 shadow-sm";
+                btnTranslate.className = "flex-1 py-2.5 text-sm font-semibold rounded-lg flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-800";
+                secTranslate.classList.add('hidden');
+                secPhrases.classList.remove('hidden');
+                renderHistory(); // Refresh view when opening
+            }
+        }
+
+        // Local Speech Synthesis API Wrapper
+        function playSpeech(text, langCode) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = langCode;
+                
+                const voices = window.speechSynthesis.getVoices();
+                if (langCode.startsWith('id')) {
+                    const idVoice = voices.find(v => v.lang.startsWith('id'));
+                    if (idVoice) utterance.voice = idVoice;
+                } else if (langCode.startsWith('zh')) {
+                    const twVoice = voices.find(v => v.lang === 'zh-TW' || v.lang === 'zh-HK');
+                    if (twVoice) utterance.voice = twVoice;
+                }
+                
+                utterance.rate = 0.82; // Slower pace for easier understanding by elderly
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showNotice('您的瀏覽器不支援本機語音播報。');
+            }
+        }
+
+        function playSpeechFromPanel(lang) {
+            const text = document.getElementById(`text-${lang}`).value.trim();
+            if (!text) {
+                showNotice('視窗中尚無文字內容。');
+                return;
+            }
+            playSpeech(text, lang === 'tw' ? 'zh-TW' : 'id-ID');
+        }
+
+        function clearPanel(lang) {
+            document.getElementById(`text-${lang}`).value = '';
+            if (lang === 'tw') {
+                document.getElementById('guide-tw').innerText = '台語讀音：尚無輸入';
+            } else {
+                document.getElementById('guide-id').innerText = '中文諧音：Belum ada input';
+            }
+            showNotice('已清除該視窗。');
+        }
+
+        function setupTextareaListeners() {
+            // Monitor changes to show/hide the manual translate trigger
+            const textTw = document.getElementById('text-tw');
+            const textId = document.getElementById('text-id');
+            const btnManual = document.getElementById('btn-manual-translate');
+
+            const checkManualTrigger = () => {
+                if (textTw.value.trim() || textId.value.trim()) {
+                    btnManual.classList.remove('hidden');
+                    btnManual.classList.add('flex');
+                } else {
+                    btnManual.classList.add('hidden');
+                    btnManual.classList.remove('flex');
+                }
+            };
+
+            textTw.addEventListener('input', checkManualTrigger);
+            textId.addEventListener('input', checkManualTrigger);
+        }
+
+        // Core UI layout toggle - SWAP translation direction (Visual state update)
+        function swapLanguages() {
+            const panelTw = document.getElementById('panel-tw');
+            const panelId = document.getElementById('panel-id');
+            const labelTw = document.getElementById('label-tw');
+            const labelId = document.getElementById('label-id');
+            const flowIndicator = document.getElementById('flow-indicator');
+            const recordBtn = document.getElementById('record-btn');
+
+            if (currentMode === 'tw') {
+                // Change to Indonesian -> Taiwanese
+                currentMode = 'id';
+                
+                // Highlight lower (ID) panel, soften upper (TW) panel
+                panelId.className = "swap-transition bg-white rounded-2xl p-4 shadow-sm border-2 border-care-500 flex flex-col justify-between h-[180px] relative";
+                panelTw.className = "swap-transition bg-white/70 rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between h-[180px] relative";
+                
+                labelId.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-care-500 inline-block animate-pulse"></span> 看護說印尼語時，點按下方錄音`;
+                labelTw.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span> 翻譯台語結果區`;
+                
+                flowIndicator.innerHTML = `<i class="w-3.5 h-3.5 text-care-500" data-lucide="arrow-up"></i><span>當前方向：看護說 ➔ 阿公聽</span>`;
+                
+                // Update record button color scheme
+                recordBtn.className = "w-20 h-20 bg-gradient-to-tr from-care-600 to-care-500 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-care-500/30 relative z-10 transition-transform cursor-pointer";
+                document.getElementById('record-label').innerText = "現在請看護按住話筒，用印尼語說話";
+                
+            } else {
+                // Change to Taiwanese -> Indonesian
+                currentMode = 'tw';
+                
+                panelTw.className = "swap-transition bg-white rounded-2xl p-4 shadow-sm border-2 border-brand-500/80 flex flex-col justify-between h-[180px] relative";
+                panelId.className = "swap-transition bg-white/70 rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between h-[180px] relative";
+                
+                labelTw.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-brand-500 inline-block animate-pulse"></span> 阿公/家人說台語時，點按下方錄音`;
+                labelId.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span> 翻譯印尼文結果區`;
+                
+                flowIndicator.innerHTML = `<i class="w-3.5 h-3.5 text-brand-500" data-lucide="arrow-down"></i><span>當前方向：阿公說 ➔ 看護聽</span>`;
+                
+                recordBtn.className = "w-20 h-20 bg-gradient-to-tr from-brand-600 to-brand-500 active:scale-95 text-white rounded-full flex items-center justify-center shadow-lg shadow-brand-500/30 relative z-10 transition-transform cursor-pointer";
+                document.getElementById('record-label').innerText = "現在請阿公按住話筒，用台語/國語說話";
+            }
+            
+            lucide.createIcons();
+            showNotice(`已變更翻譯方向：${currentMode === 'tw' ? '台語 ➔ 印尼文' : '印尼文 ➔ 台語'}`);
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            startRecording();
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            stopRecording();
+        }
+
+        async function startRecording() {
+            if (isRecording) return;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                isRecording = true;
+                audioChunks = [];
+                
+                // Visual dynamic updates
+                const ring = document.getElementById('recording-ring');
+                ring.classList.remove('hidden');
+                if (currentMode === 'tw') {
+                    ring.className = "absolute w-24 h-24 rounded-full bg-brand-500/25 animate-pulse-ring";
+                } else {
+                    ring.className = "absolute w-24 h-24 rounded-full bg-care-500/25 animate-pulse-ring";
+                }
+                
+                document.getElementById('mic-icon').classList.add('scale-110');
+                document.getElementById('record-label').innerText = "正在錄音聆聽中... 請大聲說，鬆開即送出";
+                document.getElementById('trans-status').innerText = "系統偵測音訊中...";
+                
+                // Determine compatible codecs
+                let options = {};
+                if (MediaRecorder.isTypeSupported('audio/webm')) {
+                    options = { mimeType: 'audio/webm' };
+                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    options = { mimeType: 'audio/mp4' };
+                }
+                
+                mediaRecorder = new MediaRecorder(stream, options);
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                    stream.getTracks().forEach(track => track.stop()); // Clean recording hardware hooks
+                    processAudioTranslation(audioBlob);
+                };
+
+                mediaRecorder.start();
+
+                // Trigger timer counting
+                recordStartTime = Date.now();
+                document.getElementById('record-timer').classList.remove('hidden');
+                recordTimerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('record-timer').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                }, 1000);
+
+            } catch (err) {
+                console.error('錄音失敗:', err);
+                showNotice('請確定已允許麥克風使用權限，或直接鍵入文字翻譯！');
+                isRecording = false;
+            }
+        }
+
+        function stopRecording() {
+            if (!isRecording) return;
+            isRecording = false;
+            
+            // Visual resets
+            document.getElementById('recording-ring').classList.add('hidden');
+            document.getElementById('mic-icon').classList.remove('scale-110');
+            document.getElementById('record-label').innerText = currentMode === 'tw' 
+                ? "按住麥克風開始說台語，鬆開即可翻譯" 
+                : "按住麥克風開始說印尼話，鬆開即可翻譯";
+            document.getElementById('record-timer').classList.add('hidden');
+            clearInterval(recordTimerInterval);
+
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        }
+
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function processAudioTranslation(audioBlob) {
+            document.getElementById('trans-status').innerText = "⏳ 正在理解並高速翻譯中，請稍候...";
+            
+            try {
+                const base64Data = await blobToBase64(audioBlob);
+                const mimeType = audioBlob.type || 'audio/webm';
+                
+                const prompt = currentMode === 'tw' 
+                    ? "使用者口說台灣台語或中文。請聽寫下原文，並精確翻譯成印尼文。"
+                    : "The user is speaking Indonesian. Translate their speech into Traditional Chinese (with standard Taiwanese character style if possible) & Taiwan Mandarin.";
+
+                const systemPrompt = `You are a professional medical & household elder-care translator. Your role is translating between Taiwanese (Hokkien, 台灣台語), Taiwan Mandarin, and Indonesian (Bahasa Indonesia).
+You will transcribe the user's speech and return a highly precise translation structured as a JSON.
+Output ONLY a JSON object with this exact schema (no backticks or formatting outside the JSON block):
+{
+  "transcription": "The exact phrase that was spoken in standard traditional Chinese characters (or Indonesian depending on input)",
+  "translation": "The direct natural translation in standard target language",
+  "taiwanese_guide": "If target is Taiwanese: provide Pe̍h-ōe-jī or easy-to-read Chinese phonetics. If target is Indonesian: provide simple phonetic guidelines in Mandarin sounds for Taiwanese people to pronounce it",
+  "mandarin_equivalent": "The standard Mandarin equivalent meaning"
+}`;
+
+                const apiKey = settings.apiKey || '';
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: prompt },
+                            { inlineData: { mimeType: mimeType, data: base64Data } }
+                        ]
+                    }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json" }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('API Request Error');
+                
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                const data = JSON.parse(text);
+
+                // Update panels directly with results
+                applyTranslationData(data);
+                
+                // Save to Translation Records & History list
+                saveTranslationToHistory(
+                    data.transcription,
+                    data.translation,
+                    data.taiwanese_guide,
+                    data.mandarin_equivalent,
+                    currentMode
+                );
+
+                document.getElementById('trans-status').innerText = "✅ 翻譯成功且已記錄！";
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('trans-status').innerText = "⚠️ 語音辨識或API翻譯錯誤，請直接手動輸入或重試。";
+            }
+        }
+
+        async function translateCurrentText() {
+            const textTw = document.getElementById('text-tw').value.trim();
+            const textId = document.getElementById('text-id').value.trim();
+            
+            // Determine active text based on current translation direction mode
+            let sourceText = currentMode === 'tw' ? textTw : textId;
+            if (!sourceText) {
+                showNotice('請在發送端的文字區域輸入一些字！');
+                return;
+            }
+
+            document.getElementById('trans-status').innerText = "⏳ 正在處理您的打字內容，翻譯中...";
+
+            try {
+                const systemPrompt = `You are an expert caretaking bilingual translator. Translate the given text between Taiwanese/Taiwan Mandarin and Indonesian.
+Output ONLY a valid JSON object matching this schema:
+{
+  "transcription": "${sourceText}",
+  "translation": "The correct natural translation",
+  "taiwanese_guide": "Provide romanized guide/Mandarin sounds of the phrase so any layperson can speak it",
+  "mandarin_equivalent": "The exact equivalent phrase in common Taiwan Mandarin"
+}`;
+
+                const apiKey = settings.apiKey || '';
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [{ text: `Translate this: ${sourceText}. Translation flow direction is: ${currentMode === 'tw' ? 'TW to Indonesian' : 'Indonesian to TW'}` }]
+                    }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json" }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Network fail');
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                const data = JSON.parse(text);
+
+                applyTranslationData(data);
+                
+                // Save to Translation Records & History list
+                saveTranslationToHistory(
+                    data.transcription,
+                    data.translation,
+                    data.taiwanese_guide,
+                    data.mandarin_equivalent,
+                    currentMode
+                );
+
+                document.getElementById('trans-status').innerText = "✅ 打字翻譯已更新且已記錄！";
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('trans-status').innerText = "⚠️ 翻譯出錯，請確認網路連線。";
+            }
+        }
+
+        // Apply translated response to upper and lower fixed layout panels
+        function applyTranslationData(data) {
+            const isTwMode = currentMode === 'tw';
+            
+            if (isTwMode) {
+                // Input was Taiwanese (Upper), Output is Indonesian (Lower)
+                document.getElementById('text-tw').value = data.transcription;
+                document.getElementById('text-id').value = data.translation;
+                
+                // Set helpful phonetic guide on bottom panel
+                document.getElementById('guide-id').innerText = `🔊 中文音近：${data.taiwanese_guide || '無'}`;
+                
+                // Mandarin sub-hint on upper if applicable
+                if (data.mandarin_equivalent && data.transcription !== data.mandarin_equivalent) {
+                    document.getElementById('guide-tw').innerText = `國語意思：${data.mandarin_equivalent}`;
+                } else {
+                    document.getElementById('guide-tw').innerText = `台語輸入確認：${data.transcription}`;
+                }
+
+                // Autoplay target sound
+                setTimeout(() => playSpeech(data.translation, 'id-ID'), 200);
+
+            } else {
+                // Input was Indonesian (Lower), Output is Taiwanese (Upper)
+                document.getElementById('text-id').value = data.transcription;
+                document.getElementById('text-tw').value = data.translation;
+                
+                // Show phonetic help on upper panel for Taiwanese
+                document.getElementById('guide-tw').innerText = `🗣️ 拼音提示：${data.taiwanese_guide || '無'}`;
+                
+                if (data.mandarin_equivalent) {
+                    document.getElementById('guide-id').innerText = `中文解意：${data.mandarin_equivalent}`;
+                } else {
+                    document.getElementById('guide-id').innerText = `Indonesian input: ${data.transcription}`;
+                }
+
+                // Autoplay target sound (Taiwanese)
+                setTimeout(() => playSpeech(data.translation, 'zh-TW'), 200);
+            }
+
+            // Hide the manual translate helper once applied
+            document.getElementById('btn-manual-translate').classList.add('hidden');
+        }
+
+        function quickAction(action) {
+            switchTab('translate');
+            
+            // Force TW input direction
+            if (currentMode !== 'tw') {
+                swapLanguages();
+            }
+
+            let data = {};
+            if (action === 'water') {
+                data = {
+                    transcription: "阿公，欲飲水無？",
+                    translation: "Akong, mau minum air?",
+                    taiwanese_guide: "Akong, mau minum a-yer?",
+                    mandarin_equivalent: "阿公，要喝水嗎？"
+                };
+            } else if (action === 'eat') {
+                data = {
+                    transcription: "阿公，欲食飯無？",
+                    translation: "Akong, mau makan?",
+                    taiwanese_guide: "Akong, mau ma-kan?",
+                    mandarin_equivalent: "阿公，要吃飯嗎？"
+                };
+            } else if (action === 'toilet') {
+                data = {
+                    transcription: "想欲去便所無？",
+                    translation: "Mau ke toilet?",
+                    taiwanese_guide: "Mau ke toi-let?",
+                    mandarin_equivalent: "想上廁所嗎？"
+                };
+            } else if (action === 'pain') {
+                data = {
+                    transcription: "阿公，佗位咧痛？",
+                    translation: "Akong, bagian mana yang sakit?",
+                    taiwanese_guide: "Akong, ba-gi-an ma-na yang sa-kit?",
+                    mandarin_equivalent: "阿公，哪裡在痛？"
+                };
+            } else if (action === 'emergency') {
+                data = {
+                    transcription: "緊叫醫生！真無舒服！",
+                    translation: "Cepat panggil dokter! Sangat tidak nyaman!",
+                    taiwanese_guide: "Ché-pat pang-gél dok-ter! Sa-ngat ti-dak nya-man!",
+                    mandarin_equivalent: "快叫醫生！非常不舒服！"
+                };
+            }
+            
+            applyTranslationData(data);
+            
+            // Automatically log quick action to history database
+            saveTranslationToHistory(
+                data.transcription,
+                data.translation,
+                data.taiwanese_guide,
+                data.mandarin_equivalent,
+                'tw'
+            );
+
+            showNotice('已觸發並儲存快捷對話紀錄！');
+        }
+    </script>
+</body>
+</html>
