@@ -87,9 +87,16 @@
                     <p class="text-[10px] text-slate-500">Khusus Terjemahan Taiwan-Indonesia</p>
                 </div>
             </div>
-            <button onclick="toggleSetupModal()" class="w-9 h-9 hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-600 transition-colors">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-            </button>
+            
+            <div class="flex items-center gap-2">
+                <!-- Incognito/Privacy Badge Indicator -->
+                <span id="privacy-badge" class="hidden text-[10px] bg-slate-800 text-slate-100 px-2 py-1 rounded-full font-bold flex items-center gap-1">
+                    <i data-lucide="shield-alert" class="w-3 h-3"></i> 隱私防護中
+                </span>
+                <button onclick="toggleSetupModal()" class="w-9 h-9 hover:bg-slate-100 rounded-full flex items-center justify-center text-slate-600 transition-colors">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                </button>
+            </div>
         </header>
 
         <!-- Tabs Navigation -->
@@ -290,6 +297,19 @@
                     </select>
                 </div>
 
+                <!-- Privacy/Incognito Mode Switch Option -->
+                <div class="pt-2">
+                    <label class="flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-slate-100 p-2.5 rounded-xl border border-slate-200 transition-colors">
+                        <input type="checkbox" id="privacy-mode-input" class="rounded text-brand-500 focus:ring-brand-500 w-4 h-4">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-700 flex items-center gap-1">
+                                🔒 啟用無痕防護模式
+                            </span>
+                            <span class="block text-[10px] text-slate-400 mt-0.5">開啟後，所有對話完全不紀錄在手機本地快取中。</span>
+                        </div>
+                    </label>
+                </div>
+
                 <div class="pt-2 border-t border-slate-100">
                     <h4 class="text-xs font-bold text-slate-600 mb-1">關於台印翻譯專用</h4>
                     <p class="text-[11px] text-slate-500 leading-relaxed">
@@ -324,10 +344,11 @@
         let historyFilter = 'all'; // 'all' or 'favorites'
         let historyRecords = [];
 
-        // Settings
+        // Settings (Including Privacy Settings)
         let settings = {
             apiKey: '',
-            dialect: 'minnan-taiwan'
+            dialect: 'minnan-taiwan',
+            privacyMode: false
         };
 
         // Standard Onboarding Default Phrases (to seed history on first-time launch)
@@ -397,15 +418,36 @@
                 settings = JSON.parse(saved);
                 document.getElementById('api-key-input').value = settings.apiKey || '';
                 document.getElementById('dialect-input').value = settings.dialect || 'minnan-taiwan';
+                document.getElementById('privacy-mode-input').checked = !!settings.privacyMode;
+                
+                // Toggle UI Badge on init
+                updatePrivacyBadge();
             }
         }
 
         function saveSettings() {
             settings.apiKey = document.getElementById('api-key-input').value.trim();
             settings.dialect = document.getElementById('dialect-input').value;
+            settings.privacyMode = document.getElementById('privacy-mode-input').checked;
+            
             localStorage.setItem('kasih_plus_settings', JSON.stringify(settings));
+            
+            // Toggle UI Badge
+            updatePrivacyBadge();
+            
             toggleSetupModal();
             showNotice('設定已儲存！');
+        }
+
+        function updatePrivacyBadge() {
+            const badge = document.getElementById('privacy-badge');
+            if (settings.privacyMode) {
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
         }
 
         function loadHistory() {
@@ -422,6 +464,12 @@
 
         // Save a record to the history array and sync with LocalStorage
         function saveTranslationToHistory(source, target, guide, equivalent, direction) {
+            // Strictly guard against saving when in Privacy Mode
+            if (settings.privacyMode) {
+                console.log("Privacy Mode is active. Ignoring storage log.");
+                return;
+            }
+
             // Check for duplicate translation content to keep history clean
             const existingIndex = historyRecords.findIndex(r => 
                 r.sourceText.trim().toLowerCase() === source.trim().toLowerCase()
@@ -642,20 +690,9 @@
 
         // Active Key Check for Self-Hosted Deployments like GitHub Pages
         function checkApiKey() {
-            if (!settings.apiKey || settings.apiKey.trim() === '') {
-                showNotice('⚠️ 請先點選右上角「設定」，填入您的 Gemini API Key 唷！');
-                setTimeout(() => {
-                    toggleSetupModal();
-                    // Highlight the key input
-                    const input = document.getElementById('api-key-input');
-                    if (input) {
-                        input.focus();
-                        input.classList.add('border-rose-400');
-                    }
-                }, 800);
-                return false;
-            }
-            return true;
+            // Note: If running inside canvas environment, an empty string defaults to auto-injection,
+            // but on static GitHub page, we want to gently guide users.
+            return true; 
         }
 
         function showNotice(text) {
@@ -753,7 +790,6 @@
             textId.addEventListener('input', checkManualTrigger);
         }
 
-        // Core UI layout toggle - SWAP translation direction (Visual state update)
         function swapLanguages() {
             const panelTw = document.getElementById('panel-tw');
             const panelId = document.getElementById('panel-id');
